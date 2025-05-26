@@ -89,11 +89,6 @@ def update_shop(idx):
 
 
 
-
-
-
-
-
 root = Tk()
 root.title("Mapbook_kw")
 root.geometry("1024x768")
