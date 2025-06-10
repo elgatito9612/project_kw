@@ -2,7 +2,14 @@ from tkinter import *
 
 import tkintermapview
 
+import tkinter as tk
+
+from tkinter import simpledialog, messagebox
+
+
 shops:list = []
+
+
 
 class Shop:
     def __init__(self, name, location):
@@ -10,19 +17,34 @@ class Shop:
         self.location=location
         self.coordinates= self.get_coordinates()
         self.marker=map_widget.set_marker(self.coordinates[0], self.coordinates[1])
+        self.workers = []
+
+    def __str__(self):
+            return self.name
+
+class Worker:
+    def __init__(self, name, surname):
+        self.name = name
+        self.surname = surname
+
+    def __str__(self):
+        return f"{self.name} {self.surname}"
 
 
-    def get_coordinates(self) -> list:
-        import requests
-        from bs4 import BeautifulSoup
-        address_url: str = f"https://pl.wikipedia.org/wiki/{self.location}"
-        response = requests.get(address_url).text
-        response_html = BeautifulSoup(response, "html.parser")
-        longitude: float = float(response_html.select(".longitude")[1].text.replace(",", "."))
 
-        latitude: float = float(response_html.select(".latitude")[1].text.replace(",", "."))
 
-        return [latitude, longitude]
+
+def get_coordinates(self) -> list:
+    import requests
+    from bs4 import BeautifulSoup
+    address_url: str = f"https://pl.wikipedia.org/wiki/{self.location}"
+    response = requests.get(address_url).text
+    response_html = BeautifulSoup(response, "html.parser")
+    longitude: float = float(response_html.select(".longitude")[1].text.replace(",", "."))
+
+    latitude: float = float(response_html.select(".latitude")[1].text.replace(",", "."))
+
+    return [latitude, longitude]
 
 
 def add_shop():
@@ -68,7 +90,6 @@ def update_shop(idx):
     location=entry_location.get()
 
 
-
     shops[idx].name=name
     shops[idx].location=location
 
@@ -83,6 +104,73 @@ def update_shop(idx):
     entry_name.delete(0, END)
     entry_location.delete(0, END)
     entry_name.focus()
+
+
+
+
+
+
+
+def shop_choice(evt):
+    show_workers()
+
+
+
+
+
+
+
+def show_workers():
+    lista_pracownikow.delete(0, tk.END)
+    choice = lista_sklepow.curselection()
+    if not choice:
+        return
+    shop = shops[choice[0]]
+    for p in shop.worker:
+        lista_pracownikow.insert(tk.END, str(p))
+
+
+def add_worker():
+    choice = lista_sklepow.curselection()
+    if not choice:
+        messagebox.showwarning("Brak sklepu", "Najpierw wybierz sklep.")
+        return
+    name = simpledialog.askstring("Imię pracownika", "Podaj imię:")
+    surname = simpledialog.askstring("Nazwisko pracownika", "Podaj nazwisko:")
+    if name and surname:
+        shop = shops[choice[0]]
+        shop.workers.append(Worker(name, surname))
+        show_workers()
+
+def delete_worker():
+    shop_idx = lista_sklepow.curselection()
+    worker_idx = lista_pracownikow.curselection()
+    if shop_idx and worker_idx:
+        shop = shops[shop_idx[0]]
+        del shop.workers[worker_idx[0]]
+        show_workers()
+
+
+def edit_worker():
+    shop_idx = lista_sklepow.curselection()
+    worker_idx = lista_pracownikow.curselection()
+
+    if not shop_idx or not worker_idx:
+        messagebox.showwarning("Brak wyboru", "Wybierz pracownika do edycji.")
+        return
+
+    shop = shops[shop_idx[0]]
+    worker = shop.workers[worker_idx[0]]
+
+    new_name = simpledialog.askstring("Edytuj imię", "Nowe imię:", initialvalue=worker.name)
+    new_surname = simpledialog.askstring("Edytuj nazwisko", "Nowe nazwisko:", initialvalue=worker.surname)
+
+    if new_name and new_surname:
+        worker.name = new_name
+        worker.surname = new_surname
+        show_workers()
+
+
 
 
 
@@ -155,12 +243,34 @@ map_widget.grid(row=0, column=0, columnspan=8)
 
 
 
+# sklepy = []
 
 
+root = tk.Tk()
+root.title("CRUD: Sklepy i Pracownicy")
+
+# Sklepy
+ramka_sklepy = tk.Frame(root)
+ramka_sklepy.pack(side=tk.LEFT, padx=10, pady=10)
+
+tk.Label(ramka_sklepy, text="Sklepy").pack()
+lista_sklepow = tk.Listbox(ramka_sklepy, width=30, height=10)
+lista_sklepow.pack()
+lista_sklepow.bind('<<ListboxSelect>>', shop_choice)
+
+tk.Button(ramka_sklepy, text="Dodaj sklep", command=add_shop).pack(fill='x')
+tk.Button(ramka_sklepy, text="Usuń sklep", command=delete_shop).pack(fill='x')
+
+# Pracownicy
+ramka_pracownicy = tk.Frame(root)
+ramka_pracownicy.pack(side=tk.RIGHT, padx=10, pady=10)
+
+tk.Label(ramka_pracownicy, text="Pracownicy").pack()
+lista_pracownikow = tk.Listbox(ramka_pracownicy, width=30, height=10)
+lista_pracownikow.pack()
+
+tk.Button(ramka_pracownicy, text="Dodaj pracownika", command=add_worker).pack(fill='x')
+tk.Button(ramka_pracownicy, text="Usuń pracownika", command=delete_worker).pack(fill='x')
+
+# Start GUI
 root.mainloop()
-
-
-# zrób kolorki i wyskakujące okienka
-# pobierz biblioteke Pickle ( poczytaj na necie)
-
-# rozwiąż 20 zadanek https://pl.spoj.com/problems/latwe/
