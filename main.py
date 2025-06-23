@@ -62,7 +62,7 @@ def update_shop():
     shops[idx].marker.delete()
     shops[idx].coordinates = shops[idx].get_coordinates()
     shops[idx].marker = map_widget.set_marker(
-        shops[idx].coordinates[0], shops[idx].coordinates[1], text=f"🏦 {shops[idx].name}", icon=pin_image
+        shops[idx].coordinates[0], shops[idx].coordinates[1], text=f"🏦 {shops[idx].name}"
     )
     show_shops()
 
