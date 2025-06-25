@@ -9,9 +9,11 @@ from bs4 import BeautifulSoup
 
 
 class Worker:
-    def __init__(self, name, surname):
+    def __init__(self, name, surname, coordinates=None):
         self.name = name
         self.surname = surname
+        self.coordinates = coordinates
+        self.marker = None
 
 
 class Shop:
@@ -19,7 +21,7 @@ class Shop:
         self.name = name
         self.location = location
         self.coordinates = self.get_coordinates()
-        self.marker = map_widget.set_marker(self.coordinates[0], self.coordinates[1], text=f"🏦 {self.name}", icon=pin_image)
+        self.marker = map_widget.set_marker(self.coordinates[0], self.coordinates[1], text=f"🏦 {self.name}", icon=shop_pin_image, anchor="se" )
         self.workers = []
 
 
@@ -62,7 +64,7 @@ def update_shop():
     shops[idx].marker.delete()
     shops[idx].coordinates = shops[idx].get_coordinates()
     shops[idx].marker = map_widget.set_marker(
-        shops[idx].coordinates[0], shops[idx].coordinates[1], text=f"🏦 {shops[idx].name}", icon=pin_image
+        shops[idx].coordinates[0], shops[idx].coordinates[1], text=f"🏦 {shops[idx].name}", icon=shop_pin_image
     )
     show_shops()
 
@@ -211,7 +213,9 @@ root = tk.Tk()
 root.title("💼 Zarządzanie sklepami")
 root.geometry("1300x750")
 root.configure(bg="#121212")
-pin_image = tk.PhotoImage(file="purple_pin.png")
+shop_pin_image = tk.PhotoImage(file="purple_pin(1).png")
+worker_pin_image = tk.PhotoImage(file="worker_pin(1).png")
+delivery_pin_image = tk.PhotoImage(file="delivery_pin(1).png")
 
 # Konfiguracja stylu
 style = ttk.Style()
